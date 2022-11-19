@@ -1,17 +1,44 @@
 import { useState } from "react";
-import { HStack, IconButton, VStack, useTheme, Text, Heading } from "native-base";
+import { useNavigation } from "@react-navigation/native";
+import { HStack, IconButton, VStack, useTheme, Text, Heading, FlatList, Center } from "native-base";
 import { SignOut } from "phosphor-react-native";
+import { ChatTeardropText } from "phosphor-react-native";
 
-import Logo from "../assets/LinkDev-primary.svg";
+import Logo from "../assets/123.svg";
 
 import { Filter } from "../components/Filter";
+import { Button } from "../components/Button";
+import { Order, OrderProps } from "../components/Order";
 
 
 export function Home() {
     const [statusSelected, setStatusSelected] = useState <"open" | "closed"> ("open");
+    const [orders, setOrders] = useState <OrderProps[]> ([
+        {
+            id:"1",
+            patrimony:"0001",
+            when:"19/10/2022 às 17:39",
+            status:"open"
+        },
+        {
+            id:"2",
+            patrimony:"0002",
+            when:"19/10/2022 às 22:39",
+            status:"closed"
+        }
+    ]);
 
-
+    const navigation = useNavigation();
     const { colors } = useTheme();
+
+    function handleNewOrder (){
+        navigation.navigate("new");
+    }
+
+    function handleOpenDetails(orderId: string){
+        navigation.navigate("details", { orderId });
+
+    }
 
   return (
     <VStack flex={1} pb={6} bg="gray.700">
@@ -57,6 +84,26 @@ export function Home() {
             isActive={statusSelected === "closed"}
         />
     </HStack>
+
+        <FlatList
+            data={orders}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => <Order data={item} onPress={() => handleOpenDetails(item.id)}/>}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+            ListEmptyComponent={() =>(
+                <Center>
+                    <ChatTeardropText color={colors.gray[300]} size={40} />
+                    <Text color="gray.300" fontSize="xl" mt={6} textAlign="center" >
+                        Você ainda não possui {"\n"}
+                        solicitações {statusSelected === "open" ? "em andamento" : "finalizadas"}
+                    </Text>
+                </Center>
+                 
+            )}
+        />
+
+        <Button title="Nova solicitação" onPress={ handleNewOrder } />
     </VStack>
 </VStack>
   );
