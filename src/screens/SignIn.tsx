@@ -11,6 +11,7 @@ import { Button } from "../components/Button";
 
 
 export function SignIn(){
+    const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -18,16 +19,36 @@ export function SignIn(){
     function handleSignIn(){
         if (!email || !password){
             return Alert.alert("Entrar", "Informe e-mail e senha.");
+
         }
-        
+        setIsLoading(true);
+        auth()
+        .signInWithEmailAndPassword(email, password)
+        .catch((error) =>{
+            console.log(error);
+            setIsLoading(false);
+
+            if (error.code === "auth/invalid-email") {
+                return Alert.alert("Entrar", "E-mail inválido!")
+            }
+
+            if (error.code === "auth/wrong-password") {
+                return Alert.alert("Entrar", "E-mail e/ou senha inválidos!")
+            }
+
+            if (error.code === "auth/user-not-found") {
+                return Alert.alert("Entrar", "E-mail e/ou senha inválidos!")
+            }
+
+            return Alert.alert("Entrar", "Não foi possível acessar!");
+
+        });
     }
 
 
-
-
-
-
     const { colors } = useTheme();
+
+    
     return (
         <VStack flex={1} alignItems="center" bg="gray.600" px={8} pt={24}> 
             <Logo width={250} />
@@ -50,7 +71,12 @@ export function SignIn(){
             onChangeText={setPassword}
             />
 
-            <Button title="Entrar" w="full"/>
+            <Button 
+                title="Entrar" 
+                w="full" 
+                onPress={handleSignIn}
+                isLoading={isLoading}
+            />
         </VStack>
     )
 }
